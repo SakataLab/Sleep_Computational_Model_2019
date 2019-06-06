@@ -77,5 +77,3 @@ alterationTitle = "Alteration REM to REM (full lesion)"
 
 
 
-
-

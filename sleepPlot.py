@@ -99,7 +99,7 @@ class SleepPlots(object):
 					self.cpt += 1
 
 
-	def buildHypnogram(self, c_WXi, c_RXe):
+	def buildHypnogramWithCC(self, c_WXi, c_RXe):
 		"""
 		Building hypnograms depending the WXi and RXe concentrations.
 		Returns a table containing the hypnogram values (1 for NREM, 2 for REM and 3 for Wake)
@@ -134,12 +134,49 @@ class SleepPlots(object):
 		return hypno
 
 
+	def buildHypnogramWithFR(self, f_R, f_W):
+		"""
+		Building hypnograms depending the Wake- and REM-promoting populations.
+		Returns a table containing the hypnogram values (1 for NREM, 2 for REM and 3 for Wake)
+			f_R: firing rate of the REM-promoting population
+			f_W: firing rate of the Wake-promoting population
+		"""
+
+		sleepStates = {"Wake" : [], "REM": [], "NREM": []}
+		hypno = []
+
+		cpt_Wake = 0
+		cpt_REM = 0
+		cpt_NREM = 0
+
+		for i in range(len(self.Time)):
+			if (f_W[i] > 2): # Wake
+				hypno.append(3)
+				sleepStates["Wake"].append(self.Time[i])
+				cpt_Wake += 1 
+				# print("Wake at ", Time[i], "s")
+			else: # Sleep
+				if (f_R[i] > 2): # REM
+					hypno.append(2)
+					sleepStates["REM"].append(self.Time[i]) 
+					cpt_REM += 1
+		 			# print("REM at ", Time[i], "s")
+				else:# NREM
+					hypno.append(1)
+					sleepStates["NREM"].append(self.Time[i]) 
+					cpt_NREM += 1
+					# print("NREM at ", Time[i], "s")
+		return hypno
+
+
 	def makePlots(self):
 		"""
 		Preparation of the plots for the final figure
 		"""
-		self.hypno_ctrl = self.buildHypnogram(self.c_WXi_ctrl, self.c_RXe_ctrl)
-		self.hypno_alt = self.buildHypnogram(self.c_WXi_alt, self.c_RXe_alt)
+		# self.hypno_ctrl 	= self.buildHypnogramWithCC(self.c_WXi_ctrl, 	self.c_RXe_ctrl)
+		# self.hypno_alt 	= self.buildHypnogramWithCC(self.c_WXi_alt, 	self.c_RXe_alt)
+		self.hypno_ctrl = self.buildHypnogramWithFR(self.f_R_ctrl, 	self.f_W_ctrl)
+		self.hypno_alt 	= self.buildHypnogramWithFR(self.f_R_alt, 	self.f_W_alt)
 
 		self.buildFullPlots()
 
